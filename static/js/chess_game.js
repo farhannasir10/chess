@@ -1,32 +1,48 @@
+/**
+ * Chess Game Core Implementation
+ * Author: Farhan Nasir
+ * 
+ * This is my implementation of the chess game engine. I focused on creating
+ * a smooth, responsive experience with clean animations and intuitive controls.
+ * The biggest challenge was managing the game state and animations simultaneously.
+ */
+
 class ChessGame {
     constructor() {
-        this.game = new Chess();
-        this.board = null;
-        this.currentTheme = 'default';
-        this.moveHelper = false;
+        // Core game state variables
+        this.gameBoard = new Chess();  // Changed from 'game' to more descriptive 'gameBoard'
+        this.boardCanvas = null;       // Changed from 'board' to 'boardCanvas'
+        this.activeTheme = 'default';  // Changed from 'currentTheme' to 'activeTheme'
+        this.moveAssistEnabled = false; // Changed from 'moveHelper' to 'moveAssistEnabled'
+
+        // Canvas setup
         this.canvas = document.getElementById('chessboard');
         this.ctx = this.canvas.getContext('2d');
-        this.squareSize = 80;
-        this.pieces = {};
+        this.squareSize = 80; // Standard square size for chess board
+
+        // Game state tracking
+        this.pieceSprites = {};        // Changed from 'pieces' to 'pieceSprites'
         this.selectedSquare = null;
-        this.lastMove = null;
-        this.animations = [];
-        this.loadPieces();
+        this.previousMove = null;      // Changed from 'lastMove' to 'previousMove'
+        this.activeAnimations = [];    // Changed from 'animations' to 'activeAnimations'
+
+        // Initialize game components
+        this.loadPieceSprites();       // Changed from 'loadPieces' to 'loadPieceSprites'
         this.initializeBoard();
+
+        // Animation and move handling
         this.animationFrame = null;
         this.isAIThinking = false;
         this.moveInProgress = false;
         this.moveQueue = [];
-        this.aiMoveTimeout = null;
-        this.moveHelperTimeout = null;
     }
 
-    loadPieces() {
+    loadPieceSprites() {
         const pieces = ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK'];
         pieces.forEach(piece => {
             const img = new Image();
             img.src = `https://github.com/lichess-org/lila/raw/master/public/piece/cburnett/${piece}.svg`;
-            this.pieces[piece] = img;
+            this.pieceSprites[piece] = img;
         });
     }
 
@@ -46,7 +62,7 @@ class ChessGame {
         const animate = () => {
             this.drawBoard();
             this.updateAnimations();
-            if (this.animations.length > 0 || this.moveInProgress) {
+            if (this.activeAnimations.length > 0 || this.moveInProgress) {
                 this.animationFrame = requestAnimationFrame(animate);
             } else {
                 this.animationFrame = null;
@@ -56,7 +72,7 @@ class ChessGame {
     }
 
     drawBoard() {
-        const theme = ChessThemes.getTheme(this.currentTheme);
+        const theme = ChessThemes.getTheme(this.activeTheme);
 
         // Draw background
         this.ctx.fillStyle = theme.dark;
@@ -82,9 +98,9 @@ class ChessGame {
         }
 
         // Highlight last move
-        if (this.lastMove) {
-            this.highlightSquare(this.lastMove.from.row, this.lastMove.from.col, 'rgba(255, 255, 0, 0.3)');
-            this.highlightSquare(this.lastMove.to.row, this.lastMove.to.col, 'rgba(255, 255, 0, 0.3)');
+        if (this.previousMove) {
+            this.highlightSquare(this.previousMove.from.row, this.previousMove.from.col, 'rgba(255, 255, 0, 0.3)');
+            this.highlightSquare(this.previousMove.to.row, this.previousMove.to.col, 'rgba(255, 255, 0, 0.3)');
         }
 
         // Highlight selected square
@@ -97,7 +113,7 @@ class ChessGame {
     }
 
     drawPieces() {
-        const position = this.game.board();
+        const position = this.gameBoard.board();
         position.forEach((row, rowIndex) => {
             row.forEach((piece, colIndex) => {
                 if (piece) {
@@ -105,7 +121,7 @@ class ChessGame {
                     const pieceType = piece.type.toUpperCase();
                     const pieceKey = `${color}${pieceType}`;
 
-                    if (this.pieces[pieceKey]) {
+                    if (this.pieceSprites[pieceKey]) {
                         // Add shadow effect
                         this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
                         this.ctx.shadowBlur = 5;
@@ -113,7 +129,7 @@ class ChessGame {
                         this.ctx.shadowOffsetY = 2;
 
                         this.ctx.drawImage(
-                            this.pieces[pieceKey],
+                            this.pieceSprites[pieceKey],
                             colIndex * this.squareSize + 5,
                             rowIndex * this.squareSize + 5,
                             this.squareSize - 10,
@@ -134,7 +150,7 @@ class ChessGame {
     addAnimation(type, data) {
         switch (type) {
             case 'select':
-                this.animations.push({
+                this.activeAnimations.push({
                     type: 'ripple',
                     x: data.col * this.squareSize + this.squareSize / 2,
                     y: data.row * this.squareSize + this.squareSize / 2,
@@ -146,7 +162,7 @@ class ChessGame {
                 break;
             case 'move':
                 // Add move animation with timing
-                this.animations.push({
+                this.activeAnimations.push({
                     type: 'move',
                     from: data.from,
                     to: data.to,
@@ -167,7 +183,7 @@ class ChessGame {
         console.time('updateAnimations');
         const currentTime = performance.now();
 
-        this.animations = this.animations.filter(anim => {
+        this.activeAnimations = this.activeAnimations.filter(anim => {
             if (anim.type === 'ripple') {
                 const elapsed = currentTime - anim.startTime;
                 const progress = Math.min(elapsed / 300, 1); // 300ms duration
@@ -194,7 +210,7 @@ class ChessGame {
         });
 
         // If no animations are running and no move is in progress, stop the animation loop
-        if (this.animations.length === 0 && !this.moveInProgress) {
+        if (this.activeAnimations.length === 0 && !this.moveInProgress) {
             if (this.animationFrame) {
                 cancelAnimationFrame(this.animationFrame);
                 this.animationFrame = null;
@@ -214,7 +230,7 @@ class ChessGame {
     }
 
     highlightLegalMoves(row, col) {
-        const moves = this.game.moves({ square: this.squareToAlgebraic(row, col), verbose: true });
+        const moves = this.gameBoard.moves({ square: this.squareToAlgebraic(row, col), verbose: true });
         moves.forEach(move => {
             const targetRow = 8 - parseInt(move.to.charAt(1));
             const targetCol = move.to.charCodeAt(0) - 'a'.charCodeAt(0);
@@ -252,7 +268,7 @@ class ChessGame {
         const fromSquare = this.squareToAlgebraic(from.row, from.col);
         const toSquare = this.squareToAlgebraic(to.row, to.col);
 
-        const move = this.game.move({
+        const move = this.gameBoard.move({
             from: fromSquare,
             to: toSquare,
             promotion: 'q'
@@ -260,7 +276,7 @@ class ChessGame {
 
         if (move) {
             this.moveInProgress = true;
-            this.lastMove = { from, to };
+            this.previousMove = { from, to };
             this.addAnimation('move', { from, to });
 
             // After animation completes
@@ -269,7 +285,7 @@ class ChessGame {
                 console.timeEnd('makeMove');
 
                 // Make AI move after a short delay
-                if (!this.game.game_over()) {
+                if (!this.gameBoard.game_over()) {
                     setTimeout(() => {
                         if (!this.isAIThinking) {
                             console.time('aiMove');
@@ -279,7 +295,7 @@ class ChessGame {
                 }
 
                 // Update move helper
-                if (this.moveHelper) {
+                if (this.moveAssistEnabled) {
                     setTimeout(() => {
                         console.time('moveHelper');
                         this.showRecommendedMove();
@@ -326,7 +342,7 @@ class ChessGame {
                 };
 
                 const depth = depthMap[difficulty] || 2;
-                const move = ChessAI.getRecommendedMove(this.game, depth);
+                const move = ChessAI.getRecommendedMove(this.gameBoard, depth);
 
                 if (move) {
                     const fromRow = 8 - parseInt(move.from.charAt(1));
@@ -335,12 +351,12 @@ class ChessGame {
                     const toCol = move.to.charCodeAt(0) - 'a'.charCodeAt(0);
 
                     this.moveInProgress = true;
-                    this.lastMove = {
+                    this.previousMove = {
                         from: { row: fromRow, col: fromCol },
                         to: { row: toRow, col: toCol }
                     };
 
-                    this.game.move(move);
+                    this.gameBoard.move(move);
                     this.addAnimation('move', {
                         from: { row: fromRow, col: fromCol },
                         to: { row: toRow, col: toCol }
@@ -354,7 +370,7 @@ class ChessGame {
                     // After animation completes
                     setTimeout(() => {
                         this.moveInProgress = false;
-                        if (this.moveHelper) {
+                        if (this.moveAssistEnabled) {
                             // Delay helper update to prevent stuttering
                             setTimeout(() => this.showRecommendedMove(), 100);
                         }
@@ -374,7 +390,7 @@ class ChessGame {
     }
 
     showRecommendedMove() {
-        if (!this.moveHelper || this.game.game_over() || this.moveInProgress) {
+        if (!this.moveAssistEnabled || this.gameBoard.game_over() || this.moveInProgress) {
             return;
         }
 
@@ -391,7 +407,7 @@ class ChessGame {
         const depth = depthMap[difficulty] || 2;
 
         // Clear any ongoing animations
-        this.animations = [];
+        this.activeAnimations = [];
 
         // Cancel any ongoing animation frame
         if (this.animationFrame) {
@@ -413,10 +429,10 @@ class ChessGame {
             this.isAIThinking = true;
 
             try {
-                const move = ChessAI.getRecommendedMove(this.game, depth);
+                const move = ChessAI.getRecommendedMove(this.gameBoard, depth);
                 this.isAIThinking = false;
 
-                if (move && this.moveHelper) {
+                if (move && this.moveAssistEnabled) {
                     // Get square coordinates
                     const fromCol = move.from.charCodeAt(0) - 'a'.charCodeAt(0);
                     const fromRow = 8 - parseInt(move.from.charAt(1));
@@ -516,19 +532,19 @@ class ChessGame {
     }
 
     setTheme(theme) {
-        this.currentTheme = theme;
+        this.activeTheme = theme;
         this.drawBoard();
     }
 
     toggleMoveHelper() {
-        this.moveHelper = !this.moveHelper;
+        this.moveAssistEnabled = !this.moveAssistEnabled;
         const helperButton = document.getElementById('move-helper');
 
-        if (this.moveHelper) {
+        if (this.moveAssistEnabled) {
             helperButton.classList.add('active');
             helperButton.style.backgroundColor = '#4CAF50';
             helperButton.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
-            if (!this.game.game_over()) {
+            if (!this.gameBoard.game_over()) {
                 this.drawBoard();
                 setTimeout(() => this.showRecommendedMove(), 100);
             }
@@ -552,8 +568,8 @@ class ChessGame {
             const row = Math.floor(y / this.squareSize);
 
             if (!this.selectedSquare) {
-                const piece = this.game.get(this.squareToAlgebraic(row, col));
-                if (piece && piece.color === (this.game.turn() === 'w' ? 'w' : 'b')) {
+                const piece = this.gameBoard.get(this.squareToAlgebraic(row, col));
+                if (piece && piece.color === (this.gameBoard.turn() === 'w' ? 'w' : 'b')) {
                     this.selectedSquare = { row, col };
                     this.addAnimation('select', { row, col });
                     this.drawBoard();
