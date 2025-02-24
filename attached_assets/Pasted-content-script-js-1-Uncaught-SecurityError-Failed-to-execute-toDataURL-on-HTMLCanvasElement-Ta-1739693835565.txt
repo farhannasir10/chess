@@ -1,0 +1,45 @@
+content_script.js:1 Uncaught SecurityError: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+    at #b (content_script.js:1:397029)
+    at QRCodeScanner.scanElementForQRCode (content_script.js:1:396225)
+    at content_script.js:1:395914
+
+chess_game.js:324 Move helper status: true
+chess_game.js:333 Current difficulty: beginner
+chess_game.js:345 Calculating move at depth: 1
+chess_game.js:356 Recommended move: 
+{color: 'w', from: 'f2', to: 'f3', flags: 'n', piece: 'p', …}
+chess_game.js:324 Move helper status: true
+chess_game.js:333 Current difficulty: beginner
+chess_game.js:345 Calculating move at depth: 1
+chess_game.js:356 Recommended move: 
+{color: 'w', from: 'f2', to: 'f3', flags: 'n', piece: 'p', …}
+chess_game.js:324 Move helper status: true
+chess_game.js:333 Current difficulty: beginner
+chess_game.js:345 Calculating move at depth: 1
+chess_game.js:356 Recommended move: 
+{color: 'w', from: 'f2', to: 'f3', flags: 'n', piece: 'p', …}
+chess_game.js:324 Move helper status: true
+chess_game.js:333 Current difficulty: beginner
+chess_game.js:345 Calculating move at depth: 1
+chess_game.js:356 Recommended move: 
+{color: 'w', from: 'f2', to: 'f3', flags: 'n', piece: 'p', …}
+content_script.js:1 Uncaught SecurityError: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+    at #b (content_script.js:1:397029)
+    at QRCodeScanner.scanElementForQRCode (content_script.js:1:396225)
+    at content_script.js:1:395914
+chess_game.js:324 Move helper status: true
+chess_game.js:333 Current difficulty: beginner
+chess_game.js:345 Calculating move at depth: 1
+chess_game.js:356 Recommended move: 
+{color: 'b', from: 'c6', to: 'd4', flags: 'c', piece: 'n', …}
+chess_game.js:324 Move helper status: true
+chess_game.js:333 Current difficulty: beginner
+chess_game.js:345 Calculating move at depth: 1
+chess_game.js:356 Recommended move: 
+{color: 'w', from: 'f2', to: 'f3', flags: 'n', piece: 'p', …}
+chess_game.js:324 Move helper status: true
+chess_game.js:333 Current difficulty: beginner
+chess_game.js:345 Calculating move at depth: 1
+chess_game.js:356 Recommended move: 
+{color: 'w', from: 'f2', to: 'f3', flags: 'n', piece: 'p', …}
+﻿
