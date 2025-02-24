@@ -164,6 +164,7 @@ class ChessGame {
     }
 
     updateAnimations() {
+        console.time('updateAnimations');
         const currentTime = performance.now();
 
         this.animations = this.animations.filter(anim => {
@@ -199,6 +200,7 @@ class ChessGame {
                 this.animationFrame = null;
             }
         }
+        console.timeEnd('updateAnimations');
     }
 
     highlightSquare(row, col, color) {
@@ -246,6 +248,7 @@ class ChessGame {
     makeMove(from, to) {
         if (this.moveInProgress || this.isAIThinking) return null;
 
+        console.time('makeMove');
         const fromSquare = this.squareToAlgebraic(from.row, from.col);
         const toSquare = this.squareToAlgebraic(to.row, to.col);
 
@@ -263,11 +266,13 @@ class ChessGame {
             // After animation completes
             setTimeout(() => {
                 this.moveInProgress = false;
+                console.timeEnd('makeMove');
 
                 // Make AI move after a short delay
                 if (!this.game.game_over()) {
                     setTimeout(() => {
                         if (!this.isAIThinking) {
+                            console.time('aiMove');
                             this.makeAIMove();
                         }
                     }, 300);
@@ -275,7 +280,10 @@ class ChessGame {
 
                 // Update move helper
                 if (this.moveHelper) {
-                    setTimeout(() => this.showRecommendedMove(), 600);
+                    setTimeout(() => {
+                        console.time('moveHelper');
+                        this.showRecommendedMove();
+                    }, 600);
                 }
             }, 300); // Match animation duration
         }

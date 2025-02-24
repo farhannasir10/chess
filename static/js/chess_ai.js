@@ -73,9 +73,12 @@ const ChessAI = {
     },
 
     getRecommendedMove(game, depth) {
+        console.time('getRecommendedMove');
         const startTime = Date.now();
         const timeLimit = 1000; // 1 second time limit
-        return this.getBestMove(game, depth, startTime, timeLimit);
+        const result = this.getBestMove(game, depth, startTime, timeLimit);
+        console.timeEnd('getRecommendedMove');
+        return result;
     },
 
     getBestMove(game, depth, startTime, timeLimit) {
