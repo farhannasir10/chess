@@ -57,7 +57,7 @@ This project started as a simple chess board implementation, but I gradually add
 
 Planning to add:
 - Multiplayer support
-- More advanced AI strategies
+- More advanced AI strategies 
 - Additional puzzle levels
 - Move analysis feature
 
