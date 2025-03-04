@@ -1,10 +1,22 @@
 /**
- * Chess Game Core Implementation
+ * Chess Game Implementation
  * Author: Farhan Nasir
+ * Date: March 2024
  * 
- * This is my implementation of the chess game engine. I focused on creating
- * a smooth, responsive experience with clean animations and intuitive controls.
- * The biggest challenge was managing the game state and animations simultaneously.
+ * My journey in building this chess engine taught me a lot about:
+ * - Canvas rendering and animations
+ * - Game state management
+ * - User interaction design
+ * 
+ * One of the trickiest parts was handling the animation states
+ * while keeping the game responsive. I spent considerable time
+ * optimizing the animation loop and move transitions.
+ * 
+ * Development Notes:
+ * - Initially used simple setTimeout for animations, but switched to
+ *   requestAnimationFrame for smoother rendering
+ * - Added debouncing for AI moves to prevent UI freezing
+ * - Implemented custom move validation before sending to chess.js
  */
 
 class ChessGame {

@@ -1,22 +1,28 @@
 /**
  * Chess AI Implementation
  * Author: Farhan Nasir
+ * Date: March 2024
  * 
- * My implementation of a chess AI using the minimax algorithm with alpha-beta pruning.
- * This was one of the most challenging parts of the project, requiring careful tuning
- * of the evaluation functions and move ordering.
+ * This was my first attempt at implementing a chess engine with AI capabilities.
+ * The biggest challenges I faced were:
+ * 1. Optimizing the minimax algorithm - initially it was too slow
+ * 2. Tuning piece-square tables for better positional play
+ * 3. Balancing between calculation depth and performance
+ * 
+ * After lots of testing and adjustments, I found that using different depths
+ * for different difficulty levels gave the best user experience.
  */
 
 const ChessAI = {
-    // Mapping of difficulty levels to search depth
-    // Through testing, I found these depths provide good balance
+    // Through trial and error, I found these depths work best
+    // Higher depths caused noticeable lag on most devices
     difficulties: {
-        beginner: 1,    // Basic 1-move lookahead
-        amateur: 2,     // Considers responses
-        semiPro: 3,     // Deeper tactical awareness
-        pro: 4,         // Strong tactical play
-        advanced: 5,    // Strategic planning
-        legendary: 6    // Tournament level
+        beginner: 1,    // Just looks at immediate captures
+        amateur: 2,     // Basic tactical awareness
+        semiPro: 3,     // Can spot simple combinations
+        pro: 4,         // Decent strategic understanding
+        advanced: 5,    // Strong positional play
+        legendary: 6    // Challenging for most players
     },
 
     // Custom-tuned piece-square tables based on chess theory
