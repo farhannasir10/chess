@@ -18,3 +18,7 @@ def get_puzzles():
     with open('puzzles.json', 'r') as f:
         puzzles = json.load(f)
     return jsonify(puzzles)
+
+# Vercel requires this
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
