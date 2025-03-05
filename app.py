@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")  # Fallback for development
+app.secret_key = os.environ.get("SESSION_SECRET")
 
 # Get the absolute path to puzzles.json
 PUZZLES_PATH = os.path.join(pathlib.Path(__file__).parent.absolute(), 'puzzles.json')
@@ -38,4 +38,4 @@ app = app
 
 if __name__ == '__main__':
     # ALWAYS serve the app on port 5000
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
