@@ -1,12 +1,14 @@
 import os
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, jsonify
 import json
 import logging
 import pathlib
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
+# create the app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")  # Fallback for development
 
@@ -15,7 +17,11 @@ PUZZLES_PATH = os.path.join(pathlib.Path(__file__).parent.absolute(), 'puzzles.j
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        logger.error(f"Error rendering index: {str(e)}")
+        return jsonify({"error": "Could not render index page"}), 500
 
 @app.route('/puzzles')
 def get_puzzles():
@@ -24,20 +30,12 @@ def get_puzzles():
             puzzles = json.load(f)
         return jsonify(puzzles)
     except Exception as e:
-        logging.error(f"Error loading puzzles: {str(e)}")
+        logger.error(f"Error loading puzzles: {str(e)}")
         return jsonify({"error": "Could not load puzzles"}), 500
 
-# Serve static files in Vercel environment
-@app.route('/<path:path>')
-def serve_static(path):
-    try:
-        if path.startswith('static/'):
-            return send_from_directory('.', path)
-        return app.send_static_file(path)
-    except Exception as e:
-        logging.error(f"Error serving static file {path}: {str(e)}")
-        return jsonify({"error": "Could not serve static file"}), 500
+# WSGI entry point for Vercel
+app = app
 
-# Vercel requires this
 if __name__ == '__main__':
+    # ALWAYS serve the app on port 5000
     app.run(host='0.0.0.0', port=5000, debug=True)
