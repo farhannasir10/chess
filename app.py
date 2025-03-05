@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, send_from_directory
 import json
 import logging
 import pathlib
@@ -26,6 +26,13 @@ def get_puzzles():
     except Exception as e:
         logging.error(f"Error loading puzzles: {str(e)}")
         return jsonify({"error": "Could not load puzzles"}), 500
+
+# Serve static files in Vercel environment
+@app.route('/<path:path>')
+def serve_static(path):
+    if path.startswith('static/'):
+        return send_from_directory('.', path)
+    return app.send_static_file(path)
 
 # Vercel requires this
 if __name__ == '__main__':
